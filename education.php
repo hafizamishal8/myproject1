@@ -1,11 +1,39 @@
     <?php
     include("connect.php");
+    extract($_GET);
+
+    if(isset($id) && $id > 0 && ($mode)&& $mode =='edit'){
+        $sql ="SELECT * FROM users WHERE id ='".$id."'";
+        $result = mysqli_query($conn,$sql);
+        $count = mysqli_num_rows($result);
+        if($count>0){
+            $row1 = mysqli_fetch_assoc($result);
+            $highest_degree = $row1['highest_degree'];
+            $university = $row1['university'];
+            $graduation_year = $row1['graduation_year'];
+            $major = $row1['major'];
+            $gpa = $row1['gpa'];
+        }
+    }
+
     
     extract($_POST);
     if(isset($is_submit)){
         if(isset($highest_degree) && $highest_degree==""){
             $error['highest_degree'] = "Required";
         }
+        // else{
+        // $sql = "SELECT * FROM users WHERE id = '".$id."'";
+        // if(isset($mode) && $mode == 'edit'){
+        //     $sql .= "AND id != '".$id."'";
+        // }
+     
+        // $result = mysqli_query($conn,$ql);
+        // $count = mysqli_num_rows($result);
+        //  if($count>0){
+        //         $error['higest_degree'] ="Already Exist";
+        // }
+        // }
         if(isset($university) && $university == ""){
             $error['university'] = "Required";
         }
@@ -18,6 +46,44 @@
         if(isset($gpa) && $gpa == ""){
             $error['gpa'] = "Required";
         }
+
+
+        if(empty($error)){
+
+
+            if(isset($mode) && $mode =='edit'){
+               $sql = " UPDATE users SET highest_degree  ='".$highest_degree."',
+                                        university ='".$university."',
+                                        graduation_year ='".$graduation_year."',
+                                        major ='".$major."',
+                                        gpa ='".$gpa."'
+                        WHERE id ='".$id."'";
+                $ok = mysqli_query($conn,$sql);
+                if($ok){
+                    echo "<br><br><span class='success'>  Record Updated Suceesfully </span><br><br>";
+                }
+                else{
+                    echo "<br><br><span class='error'>Error</span><br><br>";
+                }  
+            } 
+            else{
+                $sql = "INSERT INTO users (highest_degree ,university ,graduation_year, major ,gpa)
+                        VALUES ('".$highest_degree."', '".$university."','".$graduation_year."', '".$major."', '".$gpa."')";
+                $ok =mysqli_query($conn, $sql);
+                if($ok){
+                    echo "<br><br><span class='success'>  Added Record Successfully </span><br><br>";
+
+                    $highest_degree ="";
+                    $university ="";
+                    $graduation_year ="";
+                    $major ="";
+                    $gpa ="";
+                }
+                else{
+                    echo "<br><br><span class='error'>Error</span><br><br>";
+                }
+            }
+      }
     }
     ?>
         
@@ -113,6 +179,50 @@
         
         <div class= "col-12">            
             <input class="submit" type="submit" value="submit">
+        </div>
+        <div class="table">
+            <?php
+            $sql ="SELECT * FROM users";
+            $result = mysqli_query($conn, $sql);
+            $count= mysqli_num_rows($result);
+            if($count>0){ ?>
+      <h3>Educational information</h3>
+   <table>
+            <thead>
+                <tr>
+                    <th>S.no.</th>
+                    <th>highest_degree</th>
+                    <th>university</th>
+                    <th>graduation_year</th>
+                    <th>major</th>
+                    <th>gpa</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $i =0;
+                while($row =mysqli_fetch_assoc($result)){
+                  $id =$row['id'];?>
+                  <tr>
+                    <td><?php echo $i+1; ?></td>
+                    <td><?php echo $row ['highest_degree']?></td>
+                    <td><?php echo $row ['university']?></td>
+                    <td><?php echo $row ['graduation_year']?> </td>
+                    <td><?php echo $row ['major']?></td>
+                    <td><?php echo $row ['gpa']?></td>
+                    <td>
+                        <a href="education.php?id=<?php echo $row ['id'];?>&mode=edit">Edit</a>
+                    </td>
+                </tr>
+                <?php
+                $i++;
+                
+                }?>     
+            </tbody>
+         </table>
+           <?php }?>
+            
+         
         </div>
     </form>
 

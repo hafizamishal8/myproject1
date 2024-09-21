@@ -182,7 +182,7 @@
         <div class= "col-12">            
             <input class="submit" type="submit" value="submit">
         </div>
-        <div class="claass table">
+        <div class="table">
             <?php
             $sql ="SELECT * FROM users";
             $result = mysqli_query($conn, $sql);

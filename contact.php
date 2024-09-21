@@ -1,5 +1,24 @@
 <?php
 include("connect.php");
+extract($_GET);
+ if(isset($id) && $id > 0 && isset($mode) && $mode ='edit'){
+    $sql ="SELECT * FROM users WHERE id = '".$id."'";
+    
+    $result = mysqli_query($conn,$sql);
+     $count = mysqli_num_rows($result);
+     if($count>0){
+         $row1 = mysqli_fetch_assoc($result);
+         $full_name = $row1['full_name'];
+         $email = $row1['email'];
+         $phone = $row1['phone'];
+         $address = $row1['address'];
+         $city = $row1['city'];
+     }
+ }
+
+
+
+
 extract($_POST);
 
 if(isset($is_submit)){
@@ -10,7 +29,7 @@ if(isset($is_submit)){
          $error['email']= "Required";
     }
     else{
-        $sql = "SELECT * FROM users WHERE email = '".email."'";
+        $sql = "SELECT * FROM users WHERE email = '".$email."'";
         $result = mysqli_query($conn, $sql);
         $count = mysqli_num_rows($result);
     }
@@ -35,6 +54,44 @@ if(isset($is_submit)){
         $error['city'] = "Required";
     }
 
+    if(empty($error)){
+         
+        if(isset($mode) && $mode == 'edit'){
+            $sql = "UPDATE users SET full_name ='".$full_name."',
+                                     email ='".$email."',
+                                     phone ='".$phone."',
+                                     address ='".$address."',
+                                     city   ='".$city."'
+              WHERE id = '".$id."'";
+            $ok = mysqli_query($conn,$sql);
+            if($ok){
+                echo "<br><br><span class= 'success'>Record Updated</span><br><br>";
+            }
+            else{
+                echo "<br><br><span class= 'error'>Error</span><br><br>";
+            }
+        }
+    else{
+        $sql = "INSERT INTO users(full_name, email, phone ,`address`,city)
+        VALUES ('".$full_name."' , '".$email."' ,'".$phone."' , '".$address."','".$city."')";
+        
+        $ok = mysqli_query($conn,$sql);
+        if($ok){
+           
+            echo "<br><br><span class='success'>  Added Record Successfully </span><br><br>";
+
+            $full_name = "";
+            $email = "";
+            $phone = "";
+            $address = "";
+            $city = "";
+            
+        }
+        else{
+            echo "<br><br><span class='error'>Error</span><br><br>";
+       }
+    }
+}
 }
 ?>
 
@@ -128,6 +185,53 @@ if(isset($is_submit)){
         
         <div class= "col-12">            
             <input class="submit" type="submit" value="submit">
+        </div>
+
+        <div class="table">
+            <?php
+            $sql ="SELECT * FROM users";
+            $result = mysqli_query($conn, $sql);
+            $count= mysqli_num_rows($result);
+            if($count>0){ ?>
+      <h3>Form information</h3>
+   <table>
+            <thead>
+                <tr>
+                    <th>S.no.</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone No</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $i =0;
+                while($row =mysqli_fetch_assoc($result)){
+                  $id =$row['id'];?>
+                  <tr>
+                    <td><?php echo $i+1; ?></td>
+                    <td><?php echo $row ['full_name']?></td>
+                    <td><?php echo $row ['email']?></td>
+                    <td><?php echo $row ['phone']?> </td>
+                    <td><?php echo $row ['address']?></td>
+                    <td><?php echo $row ['city']?></td>
+                    <td><?php echo $row ['message']?></td>
+                    <td>
+                        <a href="contact.php?id=<?php echo $row ['id'];?>&mode=edit">Edit</a>
+                    </td>
+                </tr>
+                <?php
+                $i++;
+                
+                }?>     
+            </tbody>
+         </table>
+           <?php }?>
+            
+         
         </div>
     </form>
 
